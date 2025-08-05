@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "427037363194",
+    "project_id": "gluboom-3b564",
+    "storage_bucket": "gluboom-3b564.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:427037363194:android:b0e169bfb9bbb33c5fb243",
+        "android_client_info": {
+          "package_name": "com.gluboom.gluboom"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "427037363194-efa1dciqb87b6p71urt0mtj1d3arnk6s.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gluboom.gluboom",
+            "certificate_hash": "95a6a076d761292a3c77fd52759c91c97d5175a1"
+          }
+        },
+        {
+          "client_id": "427037363194-r9jjh63ftkat27qn3626o4po4bbo121c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5Mlhr1GSW9bKmRfQ4S_z-qulcLkzr_IQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "427037363194-r9jjh63ftkat27qn3626o4po4bbo121c.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "427037363194-0o0671nc7dhpjqslspo3c9kq5i0ho40o.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.gluboom"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
