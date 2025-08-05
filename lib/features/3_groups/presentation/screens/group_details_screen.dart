@@ -24,7 +24,7 @@ class GroupDetailsScreen extends StatefulWidget {
 
 class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
   final _currentUser = firebase_auth.FirebaseAuth.instance.currentUser;
-  
+
   @override
   Widget build(BuildContext context) {
     bool isAdmin = widget.group.admins.contains(_currentUser?.uid);

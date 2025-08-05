@@ -1,0 +1,42 @@
+name: gluboom
+description: A new Flutter project.
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Firebase
+  firebase_core: ^2.1.0
+  firebase_auth: ^4.1.0
+  cloud_firestore: ^4.1.0
+
+  # Supabase
+  supabase_flutter: ^1.10.0
+
+  # Agora
+  agora_rtc_engine: ^6.1.0
+  permission_handler: ^10.2.0
+
+  # UI & Media
+  cupertino_icons: ^1.0.2
+  iconsax: ^0.0.8
+  image_picker: ^1.0.0
+  video_player: ^2.6.0
+  story_view: ^0.15.0
+  visibility_detector: ^0.4.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true

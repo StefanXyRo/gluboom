@@ -17,7 +17,9 @@ void main() async {
 
   await Supabase.initialize(
     url: 'https://qjeursygijcplxzlpmbl.supabase.co',
-    anonKey: 'sb_publishable_i_CKNeeHaQ_yOyaw-VsABg_u5s1amXg',
+    // IMPORTANT: Înlocuiește cu cheia ta publică (anon key) de la Supabase.
+    // Găsește-o în panoul de control Supabase -> Project Settings -> API.
+    anonKey: 'CHEIA_TA_PUBLISHABLE',
   );
 
   runApp(const GluboomApp());
