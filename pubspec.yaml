@@ -1,0 +1,57 @@
+name: gluboom
+description: "A new Flutter project."
+
+publish_to: 'none' 
+
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.8.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  
+  # Firebase (versiuni actualizate)
+  firebase_core: ^3.2.0
+  firebase_auth: ^5.2.0
+  cloud_firestore: ^5.1.0
+  firebase_storage: ^12.1.0
+  firebase_app_check: ^0.3.0
+  supabase_flutter: ^2.5.2
+  story_view: ^0.16.0
+  
+  # PACHETE NOI PENTRU REELS
+  video_player: ^2.8.6      # <-- ADAUGĂ ACEASTĂ LINIE
+  visibility_detector: ^0.4.0+2 # <-- ADAUGĂ ACEASTĂ LINIE
+  
+  # UI & Pictograme
+  iconsax: ^0.0.8
+
+  # Utilitare
+  image_picker: ^1.1.2
+
+  # Live Streaming (PACHETE OFICIALE AGORA)
+  agora_rtc_engine: ^6.3.2 # <-- PACHET NOU
+  permission_handler: ^11.3.1 # <-- PACHET NOU PENTRU PERMISIUNI
+
+  # Iconițe
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+
+  flutter_lints: ^5.0.0
+
+
+
+
+flutter:
+
+
+  uses-material-design: true
+
