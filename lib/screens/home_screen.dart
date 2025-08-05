@@ -80,6 +80,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     bool isReelsSelected = _selectedIndex == 3;
     return Scaffold(
+      // Setarea culorii de fundal a Scaffold-ului principal.
+      // Aceasta va afecta întreaga pagină, inclusiv zona de conținut.
+      backgroundColor: isReelsSelected ? Colors.black : Colors.white,
       body: IndexedStack(
         index: _selectedIndex,
         children: _pages,
@@ -89,15 +92,30 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(icon: Icon(_selectedIndex == 0 ? Iconsax.home1 : Iconsax.home), label: 'Feed'),
           BottomNavigationBarItem(icon: Icon(_selectedIndex == 1 ? Iconsax.discover1 : Iconsax.discover), label: 'Grupuri'),
           BottomNavigationBarItem(icon: const Icon(Iconsax.add_square, size: 32), label: 'Creează'),
-          BottomNavigationBarItem(icon: Icon(_selectedIndex == 3 ? Iconsax.video_play5 : Iconsax.video_play), label: 'Reels'),
+          BottomNavigationBarItem(
+            // Am învelit iconița într-un widget Theme pentru a forța culoarea.
+            // Acest lucru rezolvă problema în care iconița de Reels rămânea neagră.
+            icon: Theme(
+              data: Theme.of(context).copyWith(
+                iconTheme: Theme.of(context).iconTheme.copyWith(
+                  color: isReelsSelected ? Colors.white : Colors.black,
+                ),
+              ),
+              child: Icon(_selectedIndex == 3 ? Iconsax.video_play5 : Iconsax.video_play),
+            ),
+            label: 'Reels',
+          ),
           BottomNavigationBarItem(icon: Icon(_selectedIndex == 4 ? Iconsax.profile_circle5 : Iconsax.profile_circle), label: 'Profil'),
         ],
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         type: BottomNavigationBarType.fixed,
         backgroundColor: isReelsSelected ? Colors.black : Colors.white,
-        selectedItemColor: isReelsSelected ? Colors.white : Colors.black,
-        unselectedItemColor: isReelsSelected ? Colors.grey : Colors.black,
+        // Am eliminat selectedItemColor deoarece acum este gestionat de pictograma Reels individual
+        // și de tema implicită pentru celelalte.
+        selectedItemColor: Colors.black,
+        // Culoarea pentru pictogramele neselectate: alb pe fundal negru, negru pe fundal alb.
+        unselectedItemColor: isReelsSelected ? Colors.white : Colors.black,
         showSelectedLabels: false,
         showUnselectedLabels: false,
       ),

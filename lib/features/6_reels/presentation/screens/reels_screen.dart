@@ -11,32 +11,31 @@ class ReelsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('reels')
-            .orderBy('createdAt', descending: true)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(child: Text('Niciun Reel disponibil.', style: TextStyle(color: Colors.white)));
-          }
+    // Am eliminat Scaffold-ul pentru a evita imbricarea și conflictele de temă.
+    // Culoarea de fundal va fi gestionată de HomeScreen.
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('reels')
+          .orderBy('createdAt', descending: true)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return const Center(child: Text('Niciun Reel disponibil.', style: TextStyle(color: Colors.white)));
+        }
 
-          final reels = snapshot.data!.docs.map((doc) => ReelModel.fromFirestore(doc)).toList();
+        final reels = snapshot.data!.docs.map((doc) => ReelModel.fromFirestore(doc)).toList();
 
-          return PageView.builder(
-            scrollDirection: Axis.vertical,
-            itemCount: reels.length,
-            itemBuilder: (context, index) {
-              return ReelPlayer(reel: reels[index]);
-            },
-          );
-        },
-      ),
+        return PageView.builder(
+          scrollDirection: Axis.vertical,
+          itemCount: reels.length,
+          itemBuilder: (context, index) {
+            return ReelPlayer(reel: reels[index]);
+          },
+        );
+      },
     );
   }
 }
