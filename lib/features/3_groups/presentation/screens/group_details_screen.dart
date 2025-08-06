@@ -10,9 +10,8 @@ import '../../../../data/models/post_model.dart';
 import '../../../4_feed/presentation/screens/create_post_screen.dart';
 import '../../../4_feed/presentation/widgets/post_card_widget.dart';
 import '../../../2_profile/presentation/widgets/profile_stat_widget.dart';
+import 'package:gluboom/features/3_groups/presentation/screens/manage_group_screen.dart';
 import 'edit_group_screen.dart';
-// CORECTAT: Am adăugat importul lipsă pentru ecranul de management.
-import 'manage_group_screen.dart';
 
 class GroupDetailsScreen extends StatefulWidget {
   final GroupModel group;
@@ -46,9 +45,12 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                     IconButton(
                       icon: const Icon(Iconsax.setting_2, color: Colors.white),
                       onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(
-                          builder: (context) => ManageGroupScreen(groupId: widget.group.id),
-                        ));
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  ManageGroupScreen(groupId: widget.group.id),
+                            ));
                       },
                     )
                 ],
@@ -120,3 +122,4 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     );
   }
 }
+
