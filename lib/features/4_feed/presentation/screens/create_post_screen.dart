@@ -2,12 +2,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:image_picker/image_picker.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../data/models/group_model.dart';
 
 class CreatePostScreen extends StatefulWidget {
-  // CORECTAT: Am adăugat parametrul 'initialGroup'
   final GroupModel? initialGroup;
   const CreatePostScreen({super.key, this.initialGroup});
 
@@ -22,11 +21,15 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   bool _isLoading = false;
   GroupModel? _selectedGroup;
   List<GroupModel> _userGroups = [];
+  bool _isPublicPost = true;
 
   @override
   void initState() {
     super.initState();
     _selectedGroup = widget.initialGroup;
+    if (_selectedGroup != null) {
+      _isPublicPost = _selectedGroup!.isPublic;
+    }
     _fetchUserGroups();
   }
 
@@ -52,8 +55,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     final user = firebase_auth.FirebaseAuth.instance.currentUser;
     if (user == null) return null;
     final fileName = 'post_${user.uid}_${DateTime.now().millisecondsSinceEpoch}.jpg';
-    await Supabase.instance.client.storage.from('posts').upload(fileName, image);
-    return Supabase.instance.client.storage.from('posts').getPublicUrl(fileName);
+    final ref = firebase_storage.FirebaseStorage.instance.ref().child('post_images').child(fileName);
+    await ref.putFile(image);
+    return await ref.getDownloadURL();
   }
 
   Future<void> _submitPost() async {
@@ -71,7 +75,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         imageUrl = await _uploadImage(_imageFile!);
       }
       final userData = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-      
+
+      final isAdmin = _selectedGroup!.admins.contains(user.uid);
+
       await FirebaseFirestore.instance.collection('posts').add({
         'authorId': user.uid,
         'text': _textController.text.trim(),
@@ -83,7 +89,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         'authorUsername': userData.data()?['username'],
         'authorPhotoUrl': userData.data()?['photoUrl'],
         'groupId': _selectedGroup!.id,
-        'isPublicPost': _selectedGroup!.isPublic,
+        'isPublicPost': _isPublicPost,
+        'isApproved': isAdmin, // Aprobare automată pentru admini
       });
 
       if (mounted) Navigator.pop(context);
@@ -107,7 +114,12 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                 value: _selectedGroup,
                 hint: const Text('Selectează grupul unde vrei să postezi...'),
                 items: _userGroups.map((group) => DropdownMenuItem(value: group, child: Text(group.name))).toList(),
-                onChanged: (value) => setState(() => _selectedGroup = value),
+                onChanged: (value) => setState(() {
+                  _selectedGroup = value;
+                  if (value != null) {
+                    _isPublicPost = value.isPublic;
+                  }
+                }),
                 decoration: const InputDecoration(border: OutlineInputBorder()),
               ),
             const SizedBox(height: 16),
@@ -120,6 +132,12 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             ),
             if (_imageFile != null)
               Image.file(_imageFile!, height: 200),
+            SwitchListTile(
+              title: const Text('Postare Publică'),
+              subtitle: const Text('Vizibilă pentru oricine, nu doar pentru membrii grupului.'),
+              value: _isPublicPost,
+              onChanged: (value) => setState(() => _isPublicPost = value),
+            ),
             const Divider(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
