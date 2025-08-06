@@ -1,17 +1,19 @@
 // FILE: lib/features/2_profile/presentation/screens/user_profile_screen.dart
-// VERSIUNE FINALĂ: Afișează lista de grupuri publice ale utilizatorului.
+// VERSIUNE COMPLETĂ: Cu grid-uri funcționale.
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:iconsax/iconsax.dart';
 import '../../../../data/models/user_model.dart';
-import '../../../../data/models/group_model.dart';
+import '../../../../data/models/post_model.dart';
+import '../../../../data/models/reel_model.dart';
 import '../../../7_chat/presentation/screens/chat_screen.dart';
 import '../widgets/profile_stat_widget.dart';
+import '../widgets/post_grid_tile.dart';
+import '../widgets/reel_grid_tile.dart';
+import 'followers_following_screen.dart';
 import 'edit_profile_screen.dart';
-import '../../../3_groups/presentation/widgets/group_card_widget.dart';
-import '../../../3_groups/presentation/screens/group_details_screen.dart';
 
 class UserProfileScreen extends StatefulWidget {
   final String userId;
@@ -29,7 +31,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   @override
   void initState() {
     super.initState();
-    _checkIfFollowing();
+    if (widget.userId != _currentUser?.uid) {
+      _checkIfFollowing();
+    }
   }
 
   Future<void> _checkIfFollowing() async {
@@ -88,15 +92,15 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     if (_currentUser == null) return;
 
     final currentUserRef = FirebaseFirestore.instance.collection('users').doc(_currentUser!.uid);
-    
+
     final chatParticipants = [_currentUser!.uid, widget.userId]..sort();
     final chatId = chatParticipants.join('_');
 
     final chatDoc = FirebaseFirestore.instance.collection('chats').doc(chatId);
-    
+
     if (!(await chatDoc.get()).exists) {
       final currentUserData = await currentUserRef.get();
-      
+
       await chatDoc.set({
         'participants': chatParticipants,
         'participantUsernames': {
@@ -124,45 +128,54 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
         backgroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
-        title: StreamBuilder<DocumentSnapshot>(
-          stream: FirebaseFirestore.instance.collection('users').doc(widget.userId).snapshots(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) return const SizedBox.shrink();
-            final username = snapshot.data!['username'] ?? '';
-            return Text(username, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold));
-          },
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          iconTheme: const IconThemeData(color: Colors.black),
+          title: StreamBuilder<DocumentSnapshot>(
+            stream: FirebaseFirestore.instance.collection('users').doc(widget.userId).snapshots(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) return const SizedBox.shrink();
+              final username = snapshot.data!['username'] ?? '';
+              return Text(username, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold));
+            },
+          ),
         ),
-      ),
-      body: StreamBuilder<DocumentSnapshot>(
-        stream: FirebaseFirestore.instance.collection('users').doc(widget.userId).snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting || !snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final user = UserModel.fromFirestore(snapshot.data!);
-          return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildProfileHeader(user),
-                _buildGroupsList(user),
-              ],
-            ),
-          );
-        },
+        body: NestedScrollView(
+          headerSliverBuilder: (context, innerBoxIsScrolled) {
+            return [
+              SliverToBoxAdapter(
+                child: StreamBuilder<DocumentSnapshot>(
+                  stream: FirebaseFirestore.instance.collection('users').doc(widget.userId).snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting || !snapshot.hasData) {
+                      return const Padding(padding: EdgeInsets.all(16.0), child: Center(child: CircularProgressIndicator()));
+                    }
+                    final user = UserModel.fromFirestore(snapshot.data!);
+                    return _buildProfileHeader(user);
+                  },
+                ),
+              ),
+            ];
+          },
+          body: TabBarView(
+            children: [
+              _buildPostsGrid(),
+              _buildReelsGrid(),
+            ],
+          ),
+        ),
       ),
     );
   }
 
   Widget _buildProfileHeader(UserModel user) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -178,17 +191,21 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     StreamBuilder<QuerySnapshot>(
-                      stream: FirebaseFirestore.instance
-                          .collection('groups')
-                          .where('members', arrayContains: user.uid)
-                          .snapshots(),
+                      stream: FirebaseFirestore.instance.collection('posts').where('authorId', isEqualTo: user.uid).snapshots(),
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return ProfileStatWidget(count: 0, label: 'Grupuri');
-                        }
                         final count = snapshot.data?.docs.length ?? 0;
-                        return ProfileStatWidget(count: count, label: 'Grupuri');
-                      },
+                        return ProfileStatWidget(count: count, label: 'Postări');
+                      }
+                    ),
+                    ProfileStatWidget(
+                      count: user.followerCount,
+                      label: 'Urmăritori',
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => FollowersFollowingScreen(userId: user.uid, listType: FollowListType.followers))),
+                    ),
+                    ProfileStatWidget(
+                      count: user.followingCount,
+                      label: 'Urmăriri',
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => FollowersFollowingScreen(userId: user.uid, listType: FollowListType.following))),
                     ),
                   ],
                 ),
@@ -230,71 +247,72 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 child: const Text('Editează Profilul'),
               ),
             ),
+          const SizedBox(height: 16),
+          const TabBar(
+            indicatorColor: Colors.black,
+            labelColor: Colors.black,
+            unselectedLabelColor: Colors.grey,
+            tabs: [
+              Tab(icon: Icon(Iconsax.grid_3)),
+              Tab(icon: Icon(Iconsax.video_play)),
+            ],
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildGroupsList(UserModel user) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Grupuri Publice',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+  Widget _buildPostsGrid() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('posts')
+          .where('authorId', isEqualTo: widget.userId)
+          .orderBy('createdAt', descending: true)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return const Center(child: Text('Nicio postare.'));
+        }
+        final posts = snapshot.data!.docs.map((doc) => PostModel.fromFirestore(doc)).toList();
+        return GridView.builder(
+          padding: const EdgeInsets.all(2.0),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3, crossAxisSpacing: 2, mainAxisSpacing: 2,
           ),
-          const SizedBox(height: 12),
-          StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('groups')
-                .where('members', arrayContains: user.uid)
-                .where('isPublic', isEqualTo: true)
-                .snapshots(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                return const Center(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 24.0),
-                    child: Text('Acest utilizator nu este membru în niciun grup public.'),
-                  ),
-                );
-              }
-              final groups = snapshot.data!.docs.map((doc) => GroupModel.fromFirestore(doc)).toList();
-              return ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: groups.length,
-                itemBuilder: (context, index) {
-                  final group = groups[index];
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundImage: NetworkImage(group.profileImageUrl),
-                      ),
-                      title: Text(group.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Text('${group.memberCount} membri'),
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => GroupDetailsScreen(group: group),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              );
-            },
+          itemCount: posts.length,
+          itemBuilder: (context, index) => PostGridTile(post: posts[index]),
+        );
+      },
+    );
+  }
+
+  Widget _buildReelsGrid() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('reels')
+          .where('authorId', isEqualTo: widget.userId)
+          .orderBy('createdAt', descending: true)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return const Center(child: Text('Niciun Reel.'));
+        }
+        final reels = snapshot.data!.docs.map((doc) => ReelModel.fromFirestore(doc)).toList();
+        return GridView.builder(
+          padding: const EdgeInsets.all(2.0),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3, crossAxisSpacing: 2, mainAxisSpacing: 2,
           ),
-        ],
-      ),
+          itemCount: reels.length,
+          itemBuilder: (context, index) => ReelGridTile(reel: reels[index]),
+        );
+      },
     );
   }
 }
