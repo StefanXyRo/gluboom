@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:image_picker/image_picker.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:iconsax/iconsax.dart';
 
 class CreateGroupScreen extends StatefulWidget {
@@ -34,11 +34,17 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
 
   Future<String?> _uploadImage(File image, String groupId) async {
     try {
-      final supabase = Supabase.instance.client;
-      final fileName = 'group_profile_${groupId}.jpg';
-      await supabase.storage.from('group-pictures').upload(fileName, image, fileOptions: const FileOptions(upsert: true));
-      return supabase.storage.from('group-pictures').getPublicUrl(fileName);
-    } catch (e) { return null; }
+      final ref = firebase_storage.FirebaseStorage.instance
+          .ref()
+          .child('group_profile_pictures')
+          .child('$groupId.jpg');
+
+      await ref.putFile(image);
+      final url = await ref.getDownloadURL();
+      return url;
+    } catch (e) {
+      return null;
+    }
   }
 
   Future<void> _createGroup() async {
@@ -127,10 +133,3 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     );
   }
 }
-
-// =======================================================================
-
-
-
-
-
