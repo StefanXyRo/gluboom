@@ -10,7 +10,7 @@ import '../../../../data/models/post_model.dart';
 import '../../../4_feed/presentation/screens/create_post_screen.dart';
 import '../../../4_feed/presentation/widgets/post_card_widget.dart';
 import '../../../2_profile/presentation/widgets/profile_stat_widget.dart';
-import 'package:gluboom/features/3_groups/presentation/screens/manage_group_screen.dart';
+import 'manage_group_screen.dart';
 import 'edit_group_screen.dart';
 
 class GroupDetailsScreen extends StatefulWidget {
@@ -122,4 +122,3 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     );
   }
 }
-

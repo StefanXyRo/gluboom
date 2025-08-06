@@ -23,6 +23,24 @@ class UserProfileScreen extends StatefulWidget {
   State<UserProfileScreen> createState() => _UserProfileScreenState();
 }
 
+class ProfilePage extends StatefulWidget {
+  const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(
+        child: Text('Profile Page'),
+      ),
+    );
+  }
+}
+
 class _UserProfileScreenState extends State<UserProfileScreen> {
   final _currentUser = firebase_auth.FirebaseAuth.instance.currentUser;
   bool _isFollowing = false;

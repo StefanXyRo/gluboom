@@ -16,6 +16,28 @@ class CreateGroupScreen extends StatefulWidget {
   State<CreateGroupScreen> createState() => _CreateGroupScreenState();
 }
 
+class ManageGroupScreen extends StatefulWidget {
+  final String groupId;
+  const ManageGroupScreen({super.key, required this.groupId});
+
+  @override
+  State<ManageGroupScreen> createState() => _ManageGroupScreenState();
+}
+
+class _ManageGroupScreenState extends State<ManageGroupScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Manage Group'),
+      ),
+      body: Center(
+        child: Text('Manage Group Page for group ${widget.groupId}'),
+      ),
+    );
+  }
+}
+
 class _CreateGroupScreenState extends State<CreateGroupScreen> {
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
