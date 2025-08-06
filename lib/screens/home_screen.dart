@@ -2,9 +2,8 @@
 // VERSIUNE COMPLETĂ: Cu importul lipsă adăugat.
 
 import 'package:flutter/material.dart';
+import 'package:gluboom/features/2_profile/presentation/screens/profile_page.dart';
 import 'package:iconsax/iconsax.dart';
-// CORECTAT: Am adăugat importul lipsă
-import '../features/2_profile/presentation/screens/profile_page.dart';
 import '../features/4_feed/presentation/screens/feed_page.dart';
 import '../features/4_feed/presentation/screens/create_post_screen.dart';
 import '../features/3_groups/presentation/screens/groups_list_screen.dart';
