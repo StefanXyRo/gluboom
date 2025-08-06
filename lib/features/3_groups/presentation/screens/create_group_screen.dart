@@ -107,11 +107,16 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
             const SizedBox(height: 16),
             TextField(controller: _descriptionController, decoration: const InputDecoration(labelText: 'Descriere'), maxLines: 3),
             const SizedBox(height: 24),
-            SwitchListTile(
-              title: const Text('Grup Public'),
-              subtitle: const Text('Oricine poate găsi și vedea postările acestui grup.'),
-              value: _isPublic,
-              onChanged: (value) => setState(() => _isPublic = value),
+            Card(
+              elevation: 2,
+              margin: const EdgeInsets.symmetric(vertical: 8.0),
+              child: SwitchListTile(
+                title: const Text('Grup Public', style: TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: const Text('Oricine poate găsi și vedea postările acestui grup.'),
+                value: _isPublic,
+                onChanged: (value) => setState(() => _isPublic = value),
+                activeColor: Colors.deepPurple,
+              ),
             ),
             SwitchListTile(
               title: const Text('Necesită Aprobare'),
