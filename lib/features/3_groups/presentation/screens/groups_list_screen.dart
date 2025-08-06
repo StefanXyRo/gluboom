@@ -60,7 +60,7 @@ class GroupsListScreen extends StatelessWidget {
               final group = groups[index];
               return GroupCard(
                 group: group,
-                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => GroupDetailsScreen(group: group))),
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => GroupDetailsScreen(groupId: group.id))),
               );
             },
           );
